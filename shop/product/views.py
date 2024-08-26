@@ -1,0 +1,132 @@
+from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from rest_framework import status
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django_filters import rest_framework as filters
+from shop.models import AttributeKey, AttiributeValue, Product, Category
+from shop.serializers import ProductAttiributeKey, ProductAttiributeValue, ProductAttributeSerializer,\
+    ProductSerializer, CategorySerializer
+
+
+class ProductListView(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        user = self.request.user
+        category_slug = self.kwargs.get('category_slug')
+        return Product.objects.filter(category__slug=category_slug, user=user)
+
+    @method_decorator(cache_page(60))
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
+
+
+# class ProductDetailView(RetrieveAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     lookup_field = 'id'
+#
+#     def get(self, request, *args, **kwargs):
+#         product = self.get_object()
+#
+#         is_liked = product.is_liked(request.user)
+#         comment_count = product.comments.count()
+#         all_images = product.images.all()
+#         attributes = product.attributes.all()
+#         product_data = {
+#             'product_details': self.get_serializer(product).data,
+#             'is_liked': is_liked,
+#             'comment_count': comment_count,
+#             'all_images': [image.url for image in all_images],
+#             'attributes': [attr.name for attr in attributes]
+#         }
+#         return Response(product_data)
+#
+#     def update(self, request, *args, **kwargs):
+#         product = self.get_object()
+#         serializer = self.get_serializer(product, data=request.data, partial=True)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_update(serializer)
+#         return Response(serializer.data)
+#
+#     def delete(self, request, *args, **kwargs):
+#         product = self.get_object()
+#         self.perform_destroy(product)
+#         return Response(status=204)
+
+class UpdateProductView(UpdateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        product_id = self.kwargs['product_id']
+        product = get_object_or_404(Product, id=product_id)
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        product_id = self.kwargs['product_id']
+        product = get_object_or_404(Category, id=product_id)
+        serializer = ProductSerializer(product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteProductView(DestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        product_id = self.kwargs['product_id']
+        product = get_object_or_404(Category, id=product_id)
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #
+    def delete(self, request, *args, **kwargs):
+        product_id = self.kwargs['product_id']
+        product = get_object_or_404(Product, slug=product_id)
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProductAttireKeyView(ListAPIView):
+    queryset = AttributeKey.objects.all()
+    serializer_class = ProductAttiributeKey
+
+    @method_decorator(cache_page(60))
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
+
+
+class ProductAttiributeValueView(ListAPIView):
+    queryset = AttiributeValue.objects.all()
+    serializer_class = ProductAttiributeValue
+
+    @method_decorator(cache_page(60))
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
+
+
+class ProductAttireView(RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductAttributeSerializer
+
+    @method_decorator(cache_page(60))
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
+
+
+
+
