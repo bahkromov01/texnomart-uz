@@ -3,12 +3,15 @@ from django.db.models import Prefetch, Avg
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django_filters import rest_framework as filters
+from rest_framework import filters
+
+from shop.filters import ProductFilter
 from shop.models import AttributeKey, AttiributeValue, Product, Category, Image, Comment, ProductAttribute
 from shop.serializers import ProductAttiributeKey, ProductAttiributeValue, ProductAttributeSerializer, \
     ProductSerializer, CategorySerializer, ProductDetailSerializer
@@ -17,6 +20,8 @@ from shop.serializers import ProductAttiributeKey, ProductAttiributeValue, Produ
 class CategoryProductListView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['category', 'name']
 
     def get_queryset(self):
         category_slug = self.kwargs['category_slug']
@@ -27,6 +32,8 @@ class CategoryProductListView(ListAPIView):
 class ProductListView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    search_class = ProductFilter
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
 

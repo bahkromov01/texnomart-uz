@@ -19,7 +19,6 @@ def save_product_before_delete(sender, instance, **kwargs):
         'id': instance.id,
         'name': instance.name,
         'description': instance.description,
-        'price': Decimal('19.99'),
         'discount': instance.discount,
 
     }

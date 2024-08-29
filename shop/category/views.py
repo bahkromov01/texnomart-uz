@@ -2,12 +2,15 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status, serializers
+from rest_framework import status, serializers, filters
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
+
+from shop.filters import CategoryFilter
 from shop.models import Category, Product
 from shop.serializers import CategorySerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -16,12 +19,15 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 # Create your views here.
 
+
+
 class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = [DjangoFilterBackend]
+    search_class = CategoryFilter
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
-
 
     @method_decorator(cache_page(60))
     def get(self, *args, **kwargs):
