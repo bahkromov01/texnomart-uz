@@ -19,8 +19,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
 
     @method_decorator(cache_page(60))
@@ -62,7 +62,6 @@ class CreateCategoryView(CreateAPIView):
 class UpdateCategoryView(UpdateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
 
     def get(self, request, *args, **kwargs):
         category_slug = self.kwargs['category_slug']

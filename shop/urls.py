@@ -1,6 +1,6 @@
 from django.urls import path
 from shop.product.views import ProductListView, ProductAttireKeyView, ProductAttiributeValueView, ProductAttireView, \
-    UpdateProductView, DeleteProductView
+    UpdateProductView, DeleteProductView, CategoryProductListView
 from shop.category.views import CategoryListView, CategoryDetail, CreateCategoryView, UpdateCategoryView, DeleteCategoryView
 from shop.auth.views import LoginAPIView, RegisterAPIView, LogoutAPIView
 from confic.custom_obtain_views import RegisterView, LoginView, LogoutView
@@ -12,18 +12,18 @@ urlpatterns = [
     path('category/add-category/', CreateCategoryView.as_view()),
     path('category/<slug:category_slug>/edit/', UpdateCategoryView.as_view()),
     path('category/<slug:category_slug>/delete/', DeleteCategoryView.as_view()),
-    path('category/<slug:category_slug>/', ProductListView.as_view()),
+    path('category/<slug:category_slug>/', CategoryProductListView.as_view()),
 
     # Product list
     path('product/detail/<int:id>/', ProductListView.as_view()),
     # path('product/detail/<int:product_id>/', ProductDetailView.as_view()),
     path('product/<int:product_id>/edit/', UpdateProductView.as_view()),
-    path('product/product_id /delete/', DeleteProductView.as_view()),
+    path('product/<int:product_id>/delete/', DeleteProductView.as_view()),
 
     # Attiribute
     path('attribute-key/', ProductAttireKeyView.as_view()),
     path('attribute-value/', ProductAttiributeValueView.as_view()),
-    path('product-attiribute/', ProductAttireView.as_view()),
+    path('product-attiribute/<int:id>/', ProductAttireView.as_view()),
 
     # authentication
     path('login/', LoginAPIView.as_view()),

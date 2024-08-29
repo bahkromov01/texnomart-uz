@@ -21,16 +21,22 @@ class ProductSerializer(serializers.ModelSerializer):
     comment_count = serializers.SerializerMethodField
 
 
-    def get_avg_rating(self, products):
-        avg_rating = products.comments.aggregate(avg=Avg('rating'))['avg']
-        if not avg_rating:
-            return 0
-        elif avg_rating > 0:
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    def get_avg_rating(self, obj):
+        if isinstance(obj, Product):
+            avg_rating = obj.comments.aggregate(avg=Avg('rating'))['avg']
+            if avg_rating is None:
+                return 0
             return round(avg_rating, 2)
+        else:
+            return 0
 
     def get_user_like(self, products):
         request = self.context.get('request')
-        if request.user.is_authenticated:
+        if request and request.user.is_authenticated:
             user_like = products.user_like.filter(id=request.user.id).exists()
             return user_like
         return False
@@ -41,11 +47,7 @@ class ProductSerializer(serializers.ModelSerializer):
         if image:
             image_url = image.image.url
             request = self.context.get('request')
-            return request.build_absolute_uri(image_url)
-
-    class Meta:
-        model = Product
-        fields = '__all__'
+            return request.build_absolute_uri(image_url, 1000)
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
@@ -71,12 +73,7 @@ class ProductAttiributeKey(serializers.ModelSerializer):
         model = AttributeKey
         fields = '__all__'
 
-    # def get_queryset(self, products):
-    #     attribute_key = AttributeKey.objects.filter(product=products.id)
-    #     attribute_dic = {}
-    #     for attribute in attribute_key:
-    #         attribute_dic[attribute] = attribute_key
-    #         return attribute_dic
+
 
 
 class ProductAttiributeValue(serializers.ModelSerializer):
@@ -86,19 +83,16 @@ class ProductAttiributeValue(serializers.ModelSerializer):
 
 
 class ProductAttributeSerializer(serializers.ModelSerializer):
-    class AttributeSerializer(serializers.ModelSerializer):
-        attributes = serializers.SerializerMethodField()
-
-        def get_attributes(self, products):
-            attributes = ProductAttribute.objects.filter(product=products.id)
-            attributes_dict = {}
-            for attribute in attributes:
-                attributes_dict[attribute.key.name] = attribute.value.name
-            return attributes_dict
-
-        class Meta:
-            model = Product
-            fields = '__all__'
+    attributes = serializers.SerializerMethodField()
+    def get_attributes(self, products):
+        attributes = ProductAttribute.objects.filter(product=products.id)
+        attributes_dict = {}
+        for attiribute in attributes:
+            attributes_dict[attiribute.attiribute_key] = attiribute.attiribute_value
+        return attributes_dict
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 
 class LoginSerializer(serializers.ModelSerializer):
