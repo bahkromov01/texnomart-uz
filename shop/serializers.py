@@ -47,10 +47,46 @@ class ProductSerializer(serializers.ModelSerializer):
         if image:
             image_url = image.image.url
             request = self.context.get('request')
-            return request.build_absolute_uri(image_url, 1000)
+            return request.build_absolute_uri(image_url)
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+    user_likes = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    attributes = serializers.SerializerMethodField()
+
+    def get_attributes(self, obj):
+        attributes_dict = {}
+        for attr in obj.attributes.all():
+            attributes_dict[attr.key.key] = attr.value.value
+        return attributes_dict
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = obj.images.all()
+        return [request.build_absolute_uri(img.image.url) for img in images] if images else []
+
+    def get_user_likes(self, obj):
+        return bool(obj.user_likes)  # Assuming user_likes is correctly prefetched
+
+    def get_comments(self, obj):
+        comments = obj.comments.select_related('user').all()
+        return [
+            {
+                comment.user.username: {
+                    'content': comment.content,
+                    'time': comment.created_at.isoformat(),
+                    'rating': comment.rating
+                }
+            }
+            for comment in comments
+        ]
+
+    def get_rating(self, obj):
+        return obj.rating
+
     class Meta:
         model = Product
         fields = '__all__'

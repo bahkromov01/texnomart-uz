@@ -1,6 +1,5 @@
 from django.urls import path
-from shop.product.views import ProductListView, ProductAttireKeyView, ProductAttiributeValueView, ProductAttireView, \
-    UpdateProductView, DeleteProductView, CategoryProductListView
+from shop.product.views import ProductListView, ProductAttireKeyView, ProductAttiributeValueView, ProductAttireView, UpdateProductView, DeleteProductView, CategoryProductListView, ProductDetailView
 from shop.category.views import CategoryListView, CategoryDetail, CreateCategoryView, UpdateCategoryView, DeleteCategoryView
 from shop.auth.views import LoginAPIView, RegisterAPIView, LogoutAPIView
 from confic.custom_obtain_views import RegisterView, LoginView, LogoutView
@@ -16,7 +15,7 @@ urlpatterns = [
 
     # Product list
     path('product/detail/<int:id>/', ProductListView.as_view()),
-    # path('product/detail/<int:product_id>/', ProductDetailView.as_view()),
+    path('product/detail/<int:id>/', ProductDetailView .as_view()),
     path('product/<int:product_id>/edit/', UpdateProductView.as_view()),
     path('product/<int:product_id>/delete/', DeleteProductView.as_view()),
 

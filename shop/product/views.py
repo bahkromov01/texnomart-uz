@@ -1,15 +1,17 @@
+from django.contrib.auth.models import User
+from django.db.models import Prefetch, Avg
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django_filters import rest_framework as filters
-from shop.models import AttributeKey, AttiributeValue, Product, Category
-from shop.serializers import ProductAttiributeKey, ProductAttiributeValue, ProductAttributeSerializer,\
-    ProductSerializer, CategorySerializer
+from shop.models import AttributeKey, AttiributeValue, Product, Category, Image, Comment, ProductAttribute
+from shop.serializers import ProductAttiributeKey, ProductAttiributeValue, ProductAttributeSerializer, \
+    ProductSerializer, CategorySerializer, ProductDetailSerializer
 
 
 class CategoryProductListView(ListAPIView):
@@ -32,6 +34,22 @@ class ProductListView(ListAPIView):
     def get(self, *args, **kwargs):
         return super().get(*args, **kwargs)
 
+
+class ProductDetailView(RetrieveUpdateAPIView):
+    serializer_class = ProductDetailSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Product.objects.prefetch_related(
+            Prefetch('images', queryset=Image.objects.filter(is_primary=True)),
+            Prefetch('comments', queryset=Comment.objects.select_related('user')),
+            Prefetch('attributes', queryset=ProductAttribute.objects.all()),
+            Prefetch(
+                'user_likes',
+                queryset=User.objects.filter(id=user.id),
+                to_attr='user_likes'  # Ensure the attribute name is consistent
+            )
+        ).annotate(rating=Avg('comments__rating'))
 
 # class ProductDetail(RetrieveUpdateDestroyAPIView):
 #     queryset = Product.objects.all()
@@ -103,20 +121,26 @@ class UpdateProductView(UpdateAPIView):
     serializer_class = ProductSerializer
     lookup_field = 'id'
 
-    def get(self, request, *args, **kwargs):
-        product_id = self.kwargs['product_id']
-        product = get_object_or_404(Product, id=product_id)
-        serializer = ProductSerializer(product)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, *args, **kwargs):
-        product_id = self.kwargs['product_id']
-        product = get_object_or_404(Category, id=product_id)
-        serializer = ProductSerializer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def get(self, request, *args, **kwargs):
+    #     product_id = self.kwargs['product_id']
+    #     product = get_object_or_404(Product, id=product_id)
+    #     serializer = ProductSerializer(product)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    #
+    # def put(self, request, *args, **kwargs):
+    #     product_id = self.kwargs['product_id']
+    #     product = get_object_or_404(Category, id=product_id)
+    #     serializer = ProductSerializer(product, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        data = Product.objects.get(id=self.kwargs['id'])
+        data.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class DeleteProductView(DestroyAPIView):
