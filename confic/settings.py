@@ -12,13 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import os
-import environ
 
-env = environ.Env(DEBUG=(bool, True))
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -88,13 +85,9 @@ WSGI_APPLICATION = 'confic.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env(''),
-        "USER": env('USER'),
-        "PASSWORD": env('PASSWORD'),
-        "HOST": env('HOST'),
-        "PORT": env('PORT'),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -146,7 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    'DEFA'
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -226,5 +218,5 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = 'baxromovruslan322@gmail.com'
 EMAIL_HOST_PASSWORD = 'veoj pjnj imlm qdad'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = 'jasurmavlonov24@gmail.com'
+EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
