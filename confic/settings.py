@@ -13,10 +13,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 
+import environ
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(DEBUG=(bool, False))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -27,7 +31,7 @@ SECRET_KEY = 'django-insecure-f5(u%0&k#8%4$gm^o)2=)q!akq1j#7y%5*&urnci_vx=*tdtd=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -91,7 +95,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         "NAME": env('NAME'),
+#         "USER": env('USER'),
+#         "PASSWORD": env('PASSWORD'),
+#         "HOST": env('HOST'),
+#         "PORT": env('PORT'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -214,10 +227,19 @@ INTERNAL_IPS = [
 
 
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": 'BASE_DIR, my_shop',
-    }
+    'default':
+        {
+            'BACKEND': "django.core.cache.backends.filebased.FileBasedCache",
+            'LOCATION': BASE_DIR / 'my_shop',
+        },
+
+    'redis': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis-cluster.abc123.0001.use1.cache.amazonaws.com:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    },
 }
 
 
