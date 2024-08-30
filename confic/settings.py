@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -221,9 +222,77 @@ CACHES = {
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
 EMAIL_HOST_USER = 'baxromovruslan322@gmail.com'
 EMAIL_HOST_PASSWORD = 'veoxj pjnj imlm qdad'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'jasurmavlonov24@gmail.com'
+DEFAULT_FROM_EMAIL = 'baxromovruslan322@gmail.com'
+
+JAZZMIN_SETTINGS = {
+    'site_title': 'Texnomart',
+    'site_header': 'Texnomart',
+    'site_brand': 'Texnomart',
+    'welcome_sign': 'Welcome to the Admin Area',
+    'copyright': 'Texnomart',
+    'search_model': 'auth.User',
+    'user_avatar': 'admin.ico',
+
+    # Top Menu #
+    'topmenu_links': [
+        {'name': 'Home', 'url': 'http://127.0.0.1:8000/', 'permissions': ['auth.view_user']},
+        {'name': 'Support', 'url': 'https://support.example.com', 'new_window': True},
+    ],
+
+    # Side Menu #
+    'show_sidebar': True,
+    'navigation_expanded': True,
+
+    'icons': {
+        'auth': 'fas fa-users-cog',
+        'auth.user': 'fas fa-user',
+        'auth.Group': 'fas fa-users',
+    },
+
+    # Relative paths to custom CSS/JS files
+    'custom_css': 'css/admin_custom.css',
+    'custom_js': 'js/admin_custom.js',
+
+    'show_ui_builder': True,
+
+    # Theme settings
+    'theme': 'darkly',  # Apply the dark theme by default
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-primary",
+    "accent": "accent-pink",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-success",
+    "sidebar_nav_small_text": True,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": True,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-outline-success"
+    },
+    "actions_sticky_top": False
+}

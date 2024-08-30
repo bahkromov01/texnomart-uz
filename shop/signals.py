@@ -6,10 +6,33 @@ from django.db.models.signals import post_save, post_delete, pre_save, pre_delet
 from django.dispatch import receiver
 
 from confic import settings
-from confic.settings import BASE_DIR
+from confic.settings import BASE_DIR, DEFAULT_FROM_EMAIL
 from shop.models import Product, Category
 import json
-from decimal import Decimal
+
+
+
+@receiver(post_save, sender=Product)
+def saved_product(sender, instance, **kwargs):
+    subject = 'Product has been created'
+    message = (f"Product \"{instance.name}\" has been created\nCheck this out: http://51.21.11.250:8000/"
+               f" \n\nCreated Time: {instance.created_at}\n\n\nAdmin Name: admin\nAdmin Password: 123")
+    from_email = DEFAULT_FROM_EMAIL
+    recipient_list = ['jasurmavlonov24@gmail.com', 'baxromovruslan322@gmail.com']
+
+    send_mail(subject, message, from_email, recipient_list)
+
+
+@receiver(post_save, sender=Category)
+def saved_product(sender, instance, **kwargs):
+    subject = 'Category has been created'
+    message = (f"Category \"{instance.title}\" has been created\nCheck this out: http://51.21.11.250:8000/"
+               f" \n\nCreated Time: {instance.created_at}\n\n\nAdmin Name: admin\nAdmin Password: 123")
+    from_email = DEFAULT_FROM_EMAIL
+    recipient_list = ['jasurmavlonov24@gmail.com', 'baxromovruslan322@gmail.com']
+
+    send_mail(subject, message, from_email, recipient_list)
+
 
 @receiver(pre_delete, sender=Product)
 @receiver(post_delete, sender=Product)
@@ -18,6 +41,7 @@ def save_product_before_delete(sender, instance, **kwargs):
     product_data = {
         'id': instance.id,
         'name': instance.name,
+        'slug': instance.slug,
         'description': instance.description,
         'discount': instance.discount,
 
