@@ -6,6 +6,7 @@ from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, RetrieveUpdateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -32,10 +33,11 @@ class CategoryProductListView(ListAPIView):
 class ProductListView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
-    search_class = ProductFilter
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [JWTAuthentication]
+    pagination_class = PageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ProductFilter
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @method_decorator(cache_page(60))
     def get(self, *args, **kwargs):

@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, serializers, filters
 from rest_framework.authtoken.models import Token
@@ -20,14 +21,14 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 # Create your views here.
 
 
-
 class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = [DjangoFilterBackend]
-    search_class = CategoryFilter
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [JWTAuthentication]
+    pagination_class = PageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = CategoryFilter
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @method_decorator(cache_page(60))
     def get(self, *args, **kwargs):
